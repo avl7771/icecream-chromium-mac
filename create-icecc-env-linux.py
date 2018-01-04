@@ -40,8 +40,8 @@ def DownloadUrl(url, output_path):
   with open(output_path, 'w') as output_file:
     while True:
       try:
-        sys.stdout.write('Downloading %s ' % url)
-        sys.stdout.flush()
+        sys.stderr.write('Downloading %s ' % url)
+        sys.stderr.flush()
         response = urllib2.urlopen(url)
         total_size = int(response.info().getheader('Content-Length').strip())
         bytes_done = 0
