@@ -1,5 +1,4 @@
-icecream-chromium-mac
-=====================
+# icecream-chromium-mac
 
 These instructions can be used to build Chromium or Chromium-based projects on
 Mac using [icecream](https://github.com/icecc/icecream), possibly in combination
@@ -7,7 +6,7 @@ with [ccache](https://ccache.samba.org/). Compilation can be distributed to
 macOS and Linux hosts. It was inspired by a similar effort found at
 https://github.com/darktears/icecream-mac.
 
-# Icecream setup on Mac client
+## Icecream setup on Mac client
 
 On the client (the machine you're running the build on), you'll need to install
 a recent version of icecream. At the moment of writing the latest release, 1.1,
@@ -34,12 +33,12 @@ included clang version to compile on Mac and Linux:
 $ git clone https://github.com/avl7771/icecream-chromium-mac
 ```
 
-# Icecream setup on Mac or Linux hosts
+## Icecream setup on Mac or Linux hosts
 
 You'll need icecream 1.1 or newer on any host you want to participate. Install
 and start it as normal. At least one host will need to run an icecc scheduler.
 
-# Building with icecream
+## Building with icecream
 
 You'll need to set the following GN arguments to make building with icecc
 possible. Set these using `gn args`:
