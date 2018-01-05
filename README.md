@@ -69,14 +69,14 @@ custom-built environments when you're running `ninja` to build. It's set like
 this, using the scripts and files from this repository:
 
 ```bash
-$ export ICECC_VERSION=`path/to/geticeccversion.sh path/to/chromium/src/`
+$ export ICECC_VERSION=`path/to/geticeccversion.sh path/to/chromium/src`
 ```
 
 To make sure that you're always using the correct environment for the repository
 you're building from, I recommend setting it for your `ninja` build only:
 
 ```bash
-$ ICECC_VERSION=`path/to/geticeccversion.sh path/to/chromium/src/` ninja -C out/Debug chrome`
+$ ICECC_VERSION=`path/to/geticeccversion.sh path/to/chromium/src` ninja -C out/Debug chrome`
 ```
 
 That's it, enjoy your distributed compile!
