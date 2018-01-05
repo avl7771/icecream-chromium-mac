@@ -13,7 +13,7 @@ a recent version of icecream. At the moment of writing the latest release, 1.1,
 doesn't include some of the fixes that are needed to make this work. I've
 prepared an unofficial '1.2pre' release from icecream's master branch as of 3
 January 2018 (see the [forked
-repository](https://github.com/avl7771/icecream/releases).
+repository](https://github.com/avl7771/icecream/releases)).
 
 I assume you have [Homebrew](https://brew.sh) installed. Install icecream using
 Homebrew:
