@@ -76,7 +76,7 @@ To make sure that you're always using the correct environment for the repository
 you're building from, I recommend setting it for your `ninja` build only:
 
 ```bash
-$ ICECC_VERSION=`path/to/geticeccversion.sh path/to/chromium/src` ninja -C out/Debug chrome
+$ ICECC_VERSION=`path/to/geticeccversion.sh path/to/chromium/src` ninja -j30 -C out/Debug chrome
 ```
 
-That's it, enjoy your distributed compile!
+Vary the `-j` parameter to find something fitting for the number of hosts available. That's it, enjoy your distributed compile!
