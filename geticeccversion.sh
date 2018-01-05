@@ -20,7 +20,7 @@ if [ ! -x $ICECC_CREATE_ENV ]; then
   exit 1
 fi
 
-CHROMIUM_PATH="${1:-$CHROMIUM_PATH}"
+CHROMIUM_PATH="$(realpath ${1:-$CHROMIUM_PATH})"
 
 if [ -z "$CHROMIUM_PATH" ]; then
   echo "Usage: $0 [path-to-chromium]" >&2
