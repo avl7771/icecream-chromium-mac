@@ -22,10 +22,21 @@ Homebrew:
 $ brew install avl7771/homebrew-icecream/icecream
 ```
 
-Make sure to follow the instructions to make the `iceccd` daemon run at startup.
-Check using `ps` whether it's running on your machine.
+Now start the `iceccd` daemon, as root:
 
-Then clone this repository which contains scripts to create the icecream
+```bash
+$ sudo brew services start icecream
+```
+
+Check using `ps` whether `iceccd` is running on your machine. In theory this
+should start it at startup as well, but it seems this is not currently working,
+so you might have to run this command after booting to make sure it's there:
+
+```bash
+$ sudo brew services restart icecream
+```
+
+Now clone this repository which contains scripts to create the icecream
 environment pakages from Chromium's clang binaries, so that we can use the
 included clang version to compile on Mac and Linux:
 
