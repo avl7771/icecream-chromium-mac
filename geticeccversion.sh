@@ -6,6 +6,7 @@ realpath() {
 
 ICECC_CREATE_ENV="${ICECC_CREATE_ENV:-$(which icecc-create-env)}"
 ICECC_ENV_DIR="${ICECC_ENV_DIR:-$HOME/.icecc-envs}"
+ICECC_ENV_TEMP_DIR="${ICECC_ENV_DIR}/temp"
 ICECC_LINUX_ENV_DIR="${ICECC_ENV_DIR}/linux"
 ICECC_CHROMIUM_MAC_DIR="$(realpath $(dirname $0))"
 
@@ -46,26 +47,40 @@ MAC_ENV_PATH="${ICECC_ENV_DIR}/${ENV_NAME}"
 LINUX_ENV_PATH="${ICECC_LINUX_ENV_DIR}/${ENV_NAME}"
 
 if [ ! -e "$MAC_ENV_PATH" ]; then
-  CLANG_PATH="${CHROMIUM_PATH}/third_party/llvm-build/Release+Asserts/bin/clang"
+  LLVM_PATH="${CHROMIUM_PATH}/third_party/llvm-build/Release+Asserts"
+  CLANG_PATH="${LLVM_PATH}/bin/clang"
+  PLUGINS_PATH="${LLVM_PATH}/lib"
 
   if [ ! -x "$CLANG_PATH" ]; then
     echo "Error: Can't find clang executable at $CLANG_PATH." >&2
     exit 1
   fi
 
-  TEMP_ENV_FILENAME=`(cd $ICECC_ENV_DIR && exec 5>&1 && $ICECC_CREATE_ENV --clang $CLANG_PATH 1>/dev/null)`
+  mkdir -p $ICECC_ENV_TEMP_DIR
+  rm -rf {$ICECC_ENV_TEMP_DIR}/*
+
+  TEMP_ENV_FILENAME=`(cd $ICECC_ENV_TEMP_DIR && exec 5>&1 && $ICECC_CREATE_ENV --clang $CLANG_PATH 1>/dev/null)`
   if [ -z "$TEMP_ENV_FILENAME" ]; then
     echo "Error: couldn't get file name of generated file." >&2
     exit 1
   fi
 
-  TEMP_ENV_PATH=${ICECC_ENV_DIR}/${TEMP_ENV_FILENAME}
+  TEMP_ENV_PATH=${ICECC_ENV_TEMP_DIR}/${TEMP_ENV_FILENAME}
   if [ ! -e "$TEMP_ENV_PATH" ]; then
     echo "Error: Can't find environment created at $TEMP_ENV_PATH." >&2
     exit 1
   fi
 
-  mv "$TEMP_ENV_PATH" "$MAC_ENV_PATH"
+  pushd $ICECC_ENV_TEMP_DIR
+  tar xzf $TEMP_ENV_FILENAME 1>/dev/null
+  mkdir -p usr/local/lib
+  cp $PLUGINS_PATH/libFindBadConstructs.dylib usr/local/lib/
+  cp $PLUGINS_PATH/libBlinkGCPlugin.dylib usr/local/lib/
+  rm $TEMP_ENV_FILENAME
+  tar czf $MAC_ENV_PATH . 1>/dev/null
+  popd
+
+  rm -rf $ICECC_ENV_TEMP_DIR
 fi
 
 if [ ! -e "$LINUX_ENV_PATH" ]; then
