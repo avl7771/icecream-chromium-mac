@@ -6,7 +6,6 @@ realpath() {
 
 ICECC_CREATE_ENV="${ICECC_CREATE_ENV:-$(which icecc-create-env)}"
 ICECC_ENV_DIR="${ICECC_ENV_DIR:-$HOME/.icecc-envs}"
-ICECC_ENV_TEMP_DIR="${ICECC_ENV_DIR}/temp"
 ICECC_LINUX_ENV_DIR="${ICECC_ENV_DIR}/linux"
 ICECC_CHROMIUM_MAC_DIR="$(realpath $(dirname $0))"
 
@@ -56,31 +55,38 @@ if [ ! -e "$MAC_ENV_PATH" ]; then
     exit 1
   fi
 
-  mkdir -p $ICECC_ENV_TEMP_DIR
-  rm -rf {$ICECC_ENV_TEMP_DIR}/*
-
-  TEMP_ENV_FILENAME=`(cd $ICECC_ENV_TEMP_DIR && exec 5>&1 && $ICECC_CREATE_ENV --clang $CLANG_PATH 1>/dev/null)`
+  TEMP_ENV_FILENAME=`(cd $ICECC_ENV_DIR && exec 5>&1 && $ICECC_CREATE_ENV --clang $CLANG_PATH 1>/dev/null)`
   if [ -z "$TEMP_ENV_FILENAME" ]; then
     echo "Error: couldn't get file name of generated file." >&2
     exit 1
   fi
 
-  TEMP_ENV_PATH=${ICECC_ENV_TEMP_DIR}/${TEMP_ENV_FILENAME}
+  TEMP_ENV_PATH=${ICECC_ENV_DIR}/${TEMP_ENV_FILENAME}
   if [ ! -e "$TEMP_ENV_PATH" ]; then
     echo "Error: Can't find environment created at $TEMP_ENV_PATH." >&2
     exit 1
   fi
 
-  pushd $ICECC_ENV_TEMP_DIR
-  tar xzf $TEMP_ENV_FILENAME 1>/dev/null
-  mkdir -p usr/local/lib
-  cp $PLUGINS_PATH/libFindBadConstructs.dylib usr/local/lib/
-  cp $PLUGINS_PATH/libBlinkGCPlugin.dylib usr/local/lib/
-  rm $TEMP_ENV_FILENAME
-  tar czf $MAC_ENV_PATH . 1>/dev/null
-  popd
+  ICECC_ENV_TEMP_DIR="${ICECC_ENV_DIR}/temp"
+  PLUGIN_LIB_DIR="usr/local/lib"
+  PLUGIN_DST_DIR="${ICECC_ENV_TEMP_DIR}/${PLUGIN_LIB_DIR}"
+  UNZIPPED_TAR_NAME=${ENV_NAME%.*}
 
-  rm -rf $ICECC_ENV_TEMP_DIR
+  mkdir -p $ICECC_ENV_TEMP_DIR
+  mkdir -p $PLUGIN_DST_DIR
+
+  mv "$TEMP_ENV_PATH" "$ICECC_ENV_TEMP_DIR/$ENV_NAME"
+  pushd $ICECC_ENV_TEMP_DIR
+
+  gunzip $ENV_NAME
+  cp $PLUGINS_PATH/libFindBadConstructs.dylib $PLUGIN_DST_DIR/
+  cp $PLUGINS_PATH/libBlinkGCPlugin.dylib $PLUGIN_DST_DIR/
+  tar rf $UNZIPPED_TAR_NAME $PLUGIN_LIB_DIR/libFindBadConstructs.dylib
+  tar rf $UNZIPPED_TAR_NAME $PLUGIN_LIB_DIR/libBlinkGCPlugin.dylib
+  gzip $UNZIPPED_TAR_NAME
+
+  mv "$ENV_NAME" "$MAC_ENV_PATH"
+  popd
 fi
 
 if [ ! -e "$LINUX_ENV_PATH" ]; then
