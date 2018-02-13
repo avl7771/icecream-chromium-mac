@@ -4,6 +4,12 @@ realpath() {
   python -c "import os; print(os.path.realpath('$1'))"
 }
 
+add_plugin() {
+  rm $PLUGIN_DST_DIR/$1 2>/dev/null
+  ln -s $PLUGINS_PATH/$1 $PLUGIN_DST_DIR/$1
+  tar rLf $UNZIPPED_TAR_NAME $PLUGIN_LIB_DIR/$1
+}
+
 ICECC_CREATE_ENV="${ICECC_CREATE_ENV:-$(which icecc-create-env)}"
 ICECC_ENV_DIR="${ICECC_ENV_DIR:-$HOME/.icecc-envs}"
 ICECC_LINUX_ENV_DIR="${ICECC_ENV_DIR}/linux"
@@ -46,7 +52,9 @@ MAC_ENV_PATH="${ICECC_ENV_DIR}/${ENV_NAME}"
 LINUX_ENV_PATH="${ICECC_LINUX_ENV_DIR}/${ENV_NAME}"
 
 if [ ! -e "$MAC_ENV_PATH" ]; then
-  CLANG_PATH="${CHROMIUM_PATH}/third_party/llvm-build/Release+Asserts/bin/clang"
+  LLVM_PATH="${CHROMIUM_PATH}/third_party/llvm-build/Release+Asserts"
+  CLANG_PATH="${LLVM_PATH}/bin/clang"
+  PLUGINS_PATH="${LLVM_PATH}/lib"
 
   if [ ! -x "$CLANG_PATH" ]; then
     echo "Error: Can't find clang executable at $CLANG_PATH." >&2
@@ -65,7 +73,24 @@ if [ ! -e "$MAC_ENV_PATH" ]; then
     exit 1
   fi
 
-  mv "$TEMP_ENV_PATH" "$MAC_ENV_PATH"
+  ICECC_ENV_TEMP_DIR="${ICECC_ENV_DIR}/temp"
+  PLUGIN_LIB_DIR="usr/local/lib"
+  PLUGIN_DST_DIR="${ICECC_ENV_TEMP_DIR}/${PLUGIN_LIB_DIR}"
+  UNZIPPED_TAR_NAME=${ENV_NAME%.*}
+
+  mkdir -p $ICECC_ENV_TEMP_DIR
+  mkdir -p $PLUGIN_DST_DIR
+
+  mv "$TEMP_ENV_PATH" "$ICECC_ENV_TEMP_DIR/$ENV_NAME"
+  pushd $ICECC_ENV_TEMP_DIR
+
+  gunzip $ENV_NAME
+  add_plugin libFindBadConstructs.dylib
+  add_plugin libBlinkGCPlugin.dylib
+  gzip $UNZIPPED_TAR_NAME
+
+  mv "$ENV_NAME" "$MAC_ENV_PATH"
+  popd
 fi
 
 if [ ! -e "$LINUX_ENV_PATH" ]; then
