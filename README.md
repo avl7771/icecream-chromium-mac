@@ -50,7 +50,6 @@ possible. Set these using `gn args`:
 
 ```bash
 enable_precompiled_headers=false
-blink_gc_plugin=false
 ffmpeg_use_atomics_fallback=true
 ```
 
