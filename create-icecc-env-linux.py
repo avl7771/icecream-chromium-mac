@@ -71,15 +71,12 @@ def DownloadUrl(url, output_path):
         time.sleep(retry_wait_s)
         retry_wait_s *= 2
 
-def MovePlugin(plugin_base_name, clang_prefix_path):
+def RenamePlugin(plugin_base_name, clang_prefix_path):
     plugin_src_name = plugin_base_name + ".so"
     plugin_dst_name = plugin_base_name + ".dylib"
-    plugin_src_path = os.path.join(clang_prefix_path, 'lib')
-    plugin_dst_path = os.path.join(clang_prefix_path, 'local', 'lib')
-    if not os.path.exists(plugin_dst_path):
-      os.makedirs(plugin_dst_path)
-    shutil.move(os.path.join(plugin_src_path, plugin_src_name),
-                os.path.join(plugin_dst_path, plugin_dst_name))
+    plugin_directory = os.path.join(clang_prefix_path, 'lib')
+    shutil.move(os.path.join(plugin_directory, plugin_src_name),
+                os.path.join(plugin_directory, plugin_dst_name))
 
 def CreateIceccEnv(base_path, revision):
   with make_temp_directory() as temp_dir:
@@ -98,8 +95,8 @@ def CreateIceccEnv(base_path, revision):
     with tarfile.open(base_path, 'r:gz') as t:
       t.extractall(icecc_env_path)
 
-    MovePlugin('libFindBadConstructs', clang_prefix_path)
-    MovePlugin('libBlinkGCPlugin', clang_prefix_path)
+    RenamePlugin('libFindBadConstructs', clang_prefix_path)
+    RenamePlugin('libBlinkGCPlugin', clang_prefix_path)
 
     with tarfile.open(icecc_env_pkg_path, 'w:gz') as t:
       t.add(icecc_env_path, arcname='.')

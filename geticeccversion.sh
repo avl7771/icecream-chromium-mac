@@ -61,7 +61,9 @@ if [ ! -e "$MAC_ENV_PATH" ]; then
     exit 1
   fi
 
-  TEMP_ENV_FILENAME=`(cd $ICECC_ENV_DIR && exec 5>&1 && $ICECC_CREATE_ENV --clang $CLANG_PATH 1>/dev/null)`
+  TEMP_ENV_FILENAME=`(cd $ICECC_ENV_DIR && exec 5>&1 && $ICECC_CREATE_ENV --clang $CLANG_PATH \
+                      --addfile $PLUGINS_PATH/libFindBadConstructs.dylib \
+                      --addfile $PLUGINS_PATH/libBlinkGCPlugin.dylib 1>/dev/null)`
   if [ -z "$TEMP_ENV_FILENAME" ]; then
     echo "Error: couldn't get file name of generated file." >&2
     exit 1
@@ -73,24 +75,7 @@ if [ ! -e "$MAC_ENV_PATH" ]; then
     exit 1
   fi
 
-  ICECC_ENV_TEMP_DIR="${ICECC_ENV_DIR}/temp"
-  PLUGIN_LIB_DIR="usr/local/lib"
-  PLUGIN_DST_DIR="${ICECC_ENV_TEMP_DIR}/${PLUGIN_LIB_DIR}"
-  UNZIPPED_TAR_NAME=${ENV_NAME%.*}
-
-  mkdir -p $ICECC_ENV_TEMP_DIR
-  mkdir -p $PLUGIN_DST_DIR
-
-  mv "$TEMP_ENV_PATH" "$ICECC_ENV_TEMP_DIR/$ENV_NAME"
-  pushd $ICECC_ENV_TEMP_DIR
-
-  gunzip $ENV_NAME
-  add_plugin libFindBadConstructs.dylib
-  add_plugin libBlinkGCPlugin.dylib
-  gzip $UNZIPPED_TAR_NAME
-
-  mv "$ENV_NAME" "$MAC_ENV_PATH"
-  popd
+  mv "$TEMP_ENV_PATH" "$MAC_ENV_PATH"
 fi
 
 if [ ! -e "$LINUX_ENV_PATH" ]; then
