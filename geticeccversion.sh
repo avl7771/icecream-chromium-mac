@@ -4,6 +4,12 @@ realpath() {
   python -c "import os; print(os.path.realpath('$1'))"
 }
 
+add_plugin() {
+  rm $PLUGIN_DST_DIR/$1 2>/dev/null
+  ln -s $PLUGINS_PATH/$1 $PLUGIN_DST_DIR/$1
+  tar rLf $UNZIPPED_TAR_NAME $PLUGIN_LIB_DIR/$1
+}
+
 ICECC_CREATE_ENV="${ICECC_CREATE_ENV:-$(which icecc-create-env)}"
 ICECC_ENV_DIR="${ICECC_ENV_DIR:-$HOME/.icecc-envs}"
 ICECC_LINUX_ENV_DIR="${ICECC_ENV_DIR}/linux"
@@ -79,10 +85,8 @@ if [ ! -e "$MAC_ENV_PATH" ]; then
   pushd $ICECC_ENV_TEMP_DIR
 
   gunzip $ENV_NAME
-  cp $PLUGINS_PATH/libFindBadConstructs.dylib $PLUGIN_DST_DIR/
-  cp $PLUGINS_PATH/libBlinkGCPlugin.dylib $PLUGIN_DST_DIR/
-  tar rf $UNZIPPED_TAR_NAME $PLUGIN_LIB_DIR/libFindBadConstructs.dylib
-  tar rf $UNZIPPED_TAR_NAME $PLUGIN_LIB_DIR/libBlinkGCPlugin.dylib
+  add_plugin libFindBadConstructs.dylib
+  add_plugin libBlinkGCPlugin.dylib
   gzip $UNZIPPED_TAR_NAME
 
   mv "$ENV_NAME" "$MAC_ENV_PATH"
