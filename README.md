@@ -6,6 +6,15 @@ with [ccache](https://ccache.samba.org/). Compilation can be distributed to
 macOS and Linux hosts. It was inspired by a similar effort found at
 https://github.com/darktears/icecream-mac.
 
+## What happens when I follow these instructions?
+
+* You'll install a modified version of the icecc client on Mac that is up to date
+  and has changes to work better with Clang plugins as used by Chromium
+* You'll use a script when building Chromium which builds two icecc compilation
+  environments: one for Mac (using the Clang compiler for Mac found in your local
+  Chromium repository) and one for Linux (using a matching Clang compiler for Linux
+  downloaded from Google, similar to what a Chromium build on Linux would do)
+
 ## Icecream setup on Mac client
 
 On the client (the machine you're running the build on), you'll need to install
