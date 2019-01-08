@@ -4,12 +4,6 @@ realpath() {
   python -c "import os; print(os.path.realpath('$1'))"
 }
 
-add_plugin() {
-  rm $PLUGIN_DST_DIR/$1 2>/dev/null
-  ln -s $PLUGINS_PATH/$1 $PLUGIN_DST_DIR/$1
-  tar rLf $UNZIPPED_TAR_NAME $PLUGIN_LIB_DIR/$1
-}
-
 ICECC_CREATE_ENV="${ICECC_CREATE_ENV:-$(which icecc-create-env)}"
 ICECC_ENV_DIR="${ICECC_ENV_DIR:-$HOME/.icecc-envs}"
 ICECC_LINUX_ENV_DIR="${ICECC_ENV_DIR}/linux"
@@ -61,9 +55,16 @@ if [ ! -e "$MAC_ENV_PATH" ]; then
     exit 1
   fi
 
+  # As of https://chromium-review.googlesource.com/c/1387395, plugins are built into clang.
+  # TODO: Remove ADD_PLUGINS altogether when support for Chromium older than
+  # that change is no longer needed.
+  ADD_PLUGINS=""
+  if [ -e "$PLUGINS_PATH/libFindBadConstructs.dylib" ]; then
+    ADD_PLUGINS="--addfile $PLUGINS_PATH/libFindBadConstructs.dylib --addfile $PLUGINS_PATH/libBlinkGCPlugin.dylib"
+  fi
+
   TEMP_ENV_FILENAME=`(cd $ICECC_ENV_DIR && exec 5>&1 && $ICECC_CREATE_ENV --clang $CLANG_PATH \
-                      --addfile $PLUGINS_PATH/libFindBadConstructs.dylib \
-                      --addfile $PLUGINS_PATH/libBlinkGCPlugin.dylib 1>/dev/null)`
+                      $ADD_PLUGINS 1>/dev/null)`
   if [ -z "$TEMP_ENV_FILENAME" ]; then
     echo "Error: couldn't get file name of generated file." >&2
     exit 1
