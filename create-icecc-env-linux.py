@@ -71,12 +71,17 @@ def DownloadUrl(url, output_path):
         time.sleep(retry_wait_s)
         retry_wait_s *= 2
 
+# TODO: Remove when support for Chromium older than
+# https://chromium-review.googlesource.com/c/chromium/src/+/1387395 is no
+# longer needed.
 def RenamePlugin(plugin_base_name, clang_prefix_path):
     plugin_src_name = plugin_base_name + ".so"
     plugin_dst_name = plugin_base_name + ".dylib"
     plugin_directory = os.path.join(clang_prefix_path, 'lib')
-    shutil.move(os.path.join(plugin_directory, plugin_src_name),
-                os.path.join(plugin_directory, plugin_dst_name))
+    src = os.path.join(plugin_directory, plugin_src_name)
+    dst = os.path.join(plugin_directory, plugin_dst_name)
+    if os.path.isfile(src):
+      shutil.move(src, dst)
 
 def CreateIceccEnv(base_path, revision):
   with make_temp_directory() as temp_dir:
