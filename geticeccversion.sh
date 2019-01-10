@@ -6,8 +6,9 @@ realpath() {
 
 ICECC_CREATE_ENV="${ICECC_CREATE_ENV:-$(which icecc-create-env)}"
 ICECC_ENV_DIR="${ICECC_ENV_DIR:-$HOME/.icecc-envs}"
+SCRIPT_DIR="$(realpath $(dirname $0))"
+ICECC_CREATE_ENV_LINUX="${ICECC_CREATE_ENV_LINUX:-$SCRIPT_DIR/create-icecc-env-linux.py}"
 ICECC_LINUX_ENV_DIR="${ICECC_ENV_DIR}/linux"
-ICECC_CHROMIUM_MAC_DIR="$(realpath $(dirname $0))"
 
 mkdir -p $ICECC_LINUX_ENV_DIR
 if [ ! -w $ICECC_ENV_DIR ]; then
@@ -80,13 +81,13 @@ if [ ! -e "$MAC_ENV_PATH" ]; then
   mv "$TEMP_ENV_PATH" "$MAC_ENV_PATH"
 fi
 
-if [ ! -e "$LINUX_ENV_PATH" ]; then
-  ICECC_CREATE_ENV_LINUX="${ICECC_CHROMIUM_MAC_DIR}/create-icecc-env-linux.py"
-  if [ ! -x "$ICECC_CREATE_ENV_LINUX" ]; then
-    echo "Error: Can't execute $ICECC_CREATE_ENV_LINUX." >&2
-    exit 1
-  fi
-  ICECC_BASE_LINUX="${ICECC_CHROMIUM_MAC_DIR}/clang-icecc-base-linux.tar.gz"
+if [ ! -x "$ICECC_CREATE_ENV_LINUX" ]; then
+  echo "Warning: Can't execute $ICECC_CREATE_ENV_LINUX." >&2
+  echo "Cross-compilation on linux not available." >&2
+  LINUX_ENV_PATH=""
+elif [ ! -e "$LINUX_ENV_PATH" ]; then
+  SCRIPT_DIR_LINUX=$(dirname "${ICECC_CREATE_ENV_LINUX}")
+  ICECC_BASE_LINUX="${SCRIPT_DIR_LINUX}/clang-icecc-base-linux.tar.gz"
   TEMP_ENV_FILENAME=`(cd $ICECC_LINUX_ENV_DIR && $ICECC_CREATE_ENV_LINUX $ICECC_BASE_LINUX $CLANG_VERSION $IPADDRESS)`
 fi
 
