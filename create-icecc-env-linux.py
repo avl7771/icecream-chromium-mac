@@ -83,10 +83,10 @@ def RenamePlugin(plugin_base_name, clang_prefix_path):
     if os.path.isfile(src):
       shutil.move(src, dst)
 
-def CreateIceccEnv(base_path, revision):
+def CreateIceccEnv(base_path, revision, hostname):
   with make_temp_directory() as temp_dir:
     icecc_env_path = os.path.join(temp_dir, 'icecc-env')
-    icecc_env_pkg_path = 'clang-%s.tar.gz' % revision
+    icecc_env_pkg_path = 'clang-%s-%s.tar.gz' % (revision, hostname)
     clang_prefix_path = os.path.join(icecc_env_path, 'usr')
     os.makedirs(clang_prefix_path)
 
@@ -109,11 +109,11 @@ def CreateIceccEnv(base_path, revision):
     return icecc_env_pkg_path
 
 def main():
-  if len(sys.argv) < 3:
-    eprint('Usage: %s [clang-icecc-base-linux.tar.gz] [revision]' % sys.argv[0])
+  if len(sys.argv) < 4:
+    eprint('Usage: %s [clang-icecc-base-linux.tar.gz] [revision] [hostname]' % sys.argv[0])
     sys.exit(1)
 
-  package = CreateIceccEnv(sys.argv[1], sys.argv[2])
+  package = CreateIceccEnv(sys.argv[1], sys.argv[2], sys.argv[3])
   print(package)
 
 if __name__ == "__main__":

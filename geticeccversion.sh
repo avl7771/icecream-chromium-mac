@@ -41,7 +41,8 @@ if [ -z "$CLANG_VERSION" ]; then
   exit 1
 fi
 
-ENV_NAME="clang-${CLANG_VERSION}.tar.gz"
+IPADDRESS=`route -v get default | tail -n 1 | awk '{print $NF}'`
+ENV_NAME="clang-${CLANG_VERSION}-${IPADDRESS}.tar.gz"
 MAC_ENV_PATH="${ICECC_ENV_DIR}/${ENV_NAME}"
 LINUX_ENV_PATH="${ICECC_LINUX_ENV_DIR}/${ENV_NAME}"
 
@@ -86,7 +87,7 @@ if [ ! -e "$LINUX_ENV_PATH" ]; then
     exit 1
   fi
   ICECC_BASE_LINUX="${ICECC_CHROMIUM_MAC_DIR}/clang-icecc-base-linux.tar.gz"
-  TEMP_ENV_FILENAME=`(cd $ICECC_LINUX_ENV_DIR && $ICECC_CREATE_ENV_LINUX $ICECC_BASE_LINUX $CLANG_VERSION)`
+  TEMP_ENV_FILENAME=`(cd $ICECC_LINUX_ENV_DIR && $ICECC_CREATE_ENV_LINUX $ICECC_BASE_LINUX $CLANG_VERSION $IPADDRESS)`
 fi
 
 DARWIN_VERSION=`uname -r | cut -d . -f 1`
