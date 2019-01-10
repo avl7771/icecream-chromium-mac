@@ -90,5 +90,13 @@ if [ ! -e "$LINUX_ENV_PATH" ]; then
   TEMP_ENV_FILENAME=`(cd $ICECC_LINUX_ENV_DIR && $ICECC_CREATE_ENV_LINUX $ICECC_BASE_LINUX $CLANG_VERSION $IPADDRESS)`
 fi
 
-DARWIN_VERSION=`uname -r | cut -d . -f 1`
-echo "Darwin${DARWIN_VERSION}_x86_64:${MAC_ENV_PATH},x86_64:${LINUX_ENV_PATH}"
+UNAME_S=`uname -s`
+UNAME_R=`uname -r | sed -E 's/(\.[0-9]+)*//g'`
+UNAME_M=`uname -m`
+ICECC_VERSION="${UNAME_S}${UNAME_R}_${UNAME_M}:${MAC_ENV_PATH}"
+
+if [ "$LINUX_ENV_PATH" != "" ]; then
+  ICECC_VERSION="${ICECC_VERSION},${UNAME_M}:${LINUX_ENV_PATH}"
+fi
+
+echo $ICECC_VERSION
