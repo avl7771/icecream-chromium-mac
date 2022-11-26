@@ -96,9 +96,47 @@ def CreateIceccEnv(base_path, revision, hostname):
     DownloadUrl(clang_pkg_url, clang_pkg_path)
 
     with tarfile.open(clang_pkg_path, 'r:gz') as t:
-      t.extractall(clang_prefix_path)
+      def is_within_directory(directory, target):
+          
+          abs_directory = os.path.abspath(directory)
+          abs_target = os.path.abspath(target)
+      
+          prefix = os.path.commonprefix([abs_directory, abs_target])
+          
+          return prefix == abs_directory
+      
+      def safe_extract(tar, path=".", members=None, *, numeric_owner=False):
+      
+          for member in tar.getmembers():
+              member_path = os.path.join(path, member.name)
+              if not is_within_directory(path, member_path):
+                  raise Exception("Attempted Path Traversal in Tar File")
+      
+          tar.extractall(path, members, numeric_owner=numeric_owner) 
+          
+      
+      safe_extract(t, clang_prefix_path)
     with tarfile.open(base_path, 'r:gz') as t:
-      t.extractall(icecc_env_path)
+      def is_within_directory(directory, target):
+          
+          abs_directory = os.path.abspath(directory)
+          abs_target = os.path.abspath(target)
+      
+          prefix = os.path.commonprefix([abs_directory, abs_target])
+          
+          return prefix == abs_directory
+      
+      def safe_extract(tar, path=".", members=None, *, numeric_owner=False):
+      
+          for member in tar.getmembers():
+              member_path = os.path.join(path, member.name)
+              if not is_within_directory(path, member_path):
+                  raise Exception("Attempted Path Traversal in Tar File")
+      
+          tar.extractall(path, members, numeric_owner=numeric_owner) 
+          
+      
+      safe_extract(t, icecc_env_path)
 
     RenamePlugin('libFindBadConstructs', clang_prefix_path)
     RenamePlugin('libBlinkGCPlugin', clang_prefix_path)
